@@ -233,3 +233,20 @@ export function Segmented<T extends string | number>({
     </div>
   )
 }
+
+export function Toggle({ label, hint, checked, onChange }: { label: string; hint: string; checked: boolean; onChange: (v: boolean) => void }): ReactNode {
+  return (
+    <div className="flex items-start gap-3">
+      <button
+        type="button" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)}
+        className={cx('relative mt-0.5 h-6 w-11 shrink-0 cursor-pointer rounded-full transition', checked ? 'bg-sage' : 'bg-line')}
+      >
+        <span className={cx('absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all', checked ? 'left-[22px]' : 'left-0.5')} />
+      </button>
+      <div>
+        <div className="text-[14px] font-medium">{label}</div>
+        <div className="mt-0.5 text-[12px] text-muted">{hint}</div>
+      </div>
+    </div>
+  )
+}

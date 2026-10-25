@@ -1,9 +1,10 @@
 import type { Store, SolveRow } from './db'
 import type {
-  DashboardData, ExternalPick, Guide, GuideProblem, MarkSolvedInput, PicksData, Platform, PlatformSummary,
-  ProblemKey, Recommendation, RevisionDue, SheetStatus, StatsData, TodayData, TopicStat
+  AiHelpKind, CompanyStat, Contest, ContestsData, DashboardData, ExternalPick, Guide, GuideProblem, MarkSolvedInput, PicksData, Platform,
+  PlatformSummary, ProblemKey, ProblemRef, Recommendation, RevisionDue, SheetStatus, StatsData, TodayData, TopicStat
 } from '@shared/types'
 import { PLATFORMS } from '@shared/types'
+import { detailsOf, listCompanies, problemsFor, targetMatch } from '@shared/companies'
 import { DAY_MS, addDays, dateKey, daysBetween, parseDateKey, streaks } from '@shared/dates'
 import { currentWeek, recommend, topicStats } from './engine/recommend'
 import { schedule } from './engine/revision'
@@ -12,12 +13,25 @@ import { atcoderMeta, cfDifficulty, type SyncContext } from './sync'
 import * as lc from './sync/leetcode'
 import * as gfg from './sync/gfg'
 import * as cf from './sync/codeforces'
+import * as ac from './sync/atcoder'
 import { acUrl, clipDifficulty } from './sync/atcoder'
+import { buildPrompt, callGemini } from './ai'
+
+const CONTEST_FETCHERS: Record<Platform, () => Promise<Contest[]>> = {
+  leetcode: lc.fetchContests,
+  codeforces: cf.fetchContests,
+  atcoder: ac.fetchContests,
+  gfg: gfg.fetchContests
+}
+const CONTESTS_TTL_MS = 6 * 60 * 60 * 1000
+const CONTESTS_AHEAD_MS = 21 * DAY_MS
+const AI_CACHE_MS = 365 * DAY_MS
 
 export class Service {
   readonly guideBySlug: Map<string, GuideProblem>
   readonly guideByNo: Map<number, GuideProblem>
   readonly essential: Set<number>
+  private contestFetch: Promise<void> | null = null
 
   constructor(
     readonly store: Store,
@@ -73,7 +87,9 @@ export class Service {
     for (const s of this.store.allSolves()) {
       if (s.confidence === 1 && s.topic) shakyByTopic.set(s.topic, (shakyByTopic.get(s.topic) ?? 0) + 1)
     }
-    return recommend({ problems: this.trackProblems(), solvedSlugs, week: this.weekInfo().week, mistakesByTopic, shakyByTopic }, limit)
+    const targets = this.store.getSettings().targetCompanies
+    const targetFor = (p: GuideProblem): string | null => targetMatch(detailsOf(this.guide, p), targets)
+    return recommend({ problems: this.trackProblems(), solvedSlugs, week: this.weekInfo().week, mistakesByTopic, shakyByTopic, targetFor }, limit)
   }
 
   // ---------------------------------------------------------------- reads
@@ -220,6 +236,68 @@ export class Service {
     }
   }
 
+  /** Readiness for each target company (or the four most-asked ones before any are chosen). */
+  companies(): CompanyStat[] {
+    const targets = this.store.getSettings().targetCompanies
+    const names = targets.length ? targets : listCompanies(this.guide).slice(0, 4).map((c) => c.company)
+    const solved = this.solvedSlugs()
+    return names.map((company) => {
+      const ps = problemsFor(this.guide, company)
+      const open = ps.filter((p) => !solved.has(p.slug))
+      return {
+        company,
+        total: ps.length,
+        solved: ps.length - open.length,
+        byDifficulty: (['Easy', 'Medium', 'Hard'] as const).map((difficulty) => {
+          const d = ps.filter((p) => p.difficulty === difficulty)
+          return { difficulty, solved: d.filter((p) => solved.has(p.slug)).length, total: d.length }
+        }),
+        mustDoLeft: open.filter((p) => p.priority === 5).length,
+        // Same order the guide asks for: foundations first, then by priority within a level.
+        next: [...open].sort((a, b) => a.level - b.level || b.priority - a.priority || a.no - b.no).slice(0, 4)
+      }
+    })
+  }
+
+  // ---------------------------------------------------------------- contests
+  /** Contests from the last fetch, without touching the network (used by the reminder loop). */
+  cachedContests(): Contest[] {
+    const now = Date.now()
+    const followed = new Set(this.store.getSettings().contestPlatforms)
+    const hit = this.store.cacheGet<ContestsData>('contests', 7 * DAY_MS)
+    return (hit?.contests ?? [])
+      .filter((c) => followed.has(c.platform) && c.start + c.durationMin * 60_000 > now && c.start < now + CONTESTS_AHEAD_MS)
+      .sort((a, b) => a.start - b.start)
+  }
+
+  /** Upcoming contests on every platform; refetched when older than six hours or when forced. */
+  async contests(force = false): Promise<ContestsData> {
+    const hit = this.store.cacheGet<ContestsData>('contests', force ? 0 : CONTESTS_TTL_MS)
+    if (!hit) {
+      this.contestFetch ??= this.fetchContests().finally(() => (this.contestFetch = null))
+      await this.contestFetch
+    }
+    const data = this.store.cacheGet<ContestsData>('contests', 7 * DAY_MS)!
+    return { ...data, contests: this.cachedContests() }
+  }
+
+  private async fetchContests(): Promise<void> {
+    const prev = this.store.cacheGet<ContestsData>('contests', 7 * DAY_MS)
+    const errors: ContestsData['errors'] = {}
+    const lists = await Promise.all(
+      PLATFORMS.map(async (p) => {
+        try {
+          return await CONTEST_FETCHERS[p]()
+        } catch (e) {
+          errors[p] = (e as Error).message
+          // Keep showing what we knew before rather than dropping the platform.
+          return (prev?.contests ?? []).filter((c) => c.platform === p)
+        }
+      })
+    )
+    this.store.cacheSet('contests', { contests: lists.flat(), fetchedAt: Date.now(), errors } satisfies ContestsData)
+  }
+
   // ---------------------------------------------------------------- network picks
   async picks(): Promise<PicksData> {
     const date = dateKey()
@@ -290,5 +368,21 @@ export class Service {
     const prev = this.store.getRevision(key)
     const g = key.startsWith('lc:') ? this.guideBySlug.get(key.slice(3)) : undefined
     this.store.setRevision({ key, ...schedule(prev?.reps ?? null, confidence, Date.now(), !!g && this.essential.has(g.no)) })
+  }
+
+  // ---------------------------------------------------------------- AI help
+  async aiHelp(problem: ProblemRef, kind: AiHelpKind, apiKey: string, fresh = false): Promise<string> {
+    const cacheKey = `ai:${kind}:${problem.key}`
+    if (!fresh) {
+      const hit = this.store.cacheGet<string>(cacheKey, AI_CACHE_MS)
+      if (hit) return hit
+    }
+    const g = problem.guideNo ? this.guideByNo.get(problem.guideNo) : problem.platform === 'leetcode' ? this.guideBySlug.get(problem.key.slice(3)) : undefined
+    let statement: string | null = null
+    if (problem.platform === 'leetcode') statement = await lc.fetchQuestionContent(problem.key.slice(3)).catch(() => null)
+    const prompt = buildPrompt(kind, { problem, statement, details: g ? detailsOf(this.guide, g) : null })
+    const answer = await callGemini(apiKey, this.store.getSettings().aiModel, prompt)
+    this.store.cacheSet(cacheKey, answer)
+    return answer
   }
 }

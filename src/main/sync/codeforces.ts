@@ -1,4 +1,5 @@
 import { getJson, throttle } from './http'
+import type { Contest } from '@shared/types'
 import { topicForTags } from './topics'
 
 const API = 'https://codeforces.com/api'
@@ -105,4 +106,19 @@ export async function fetchSolved(handle: string, sinceSec: number | null): Prom
 export async function fetchProblemset(): Promise<CfProblem[]> {
   const r = await call<{ problems: CfProblem[] }>('problemset.problems', {})
   return r.problems
+}
+
+/** Rounds that haven't started yet (gym excluded). */
+export async function fetchContests(): Promise<Contest[]> {
+  const r = await call<{ id: number; name: string; phase: string; startTimeSeconds?: number; durationSeconds: number }[]>('contest.list', { gym: 'false' })
+  return r
+    .filter((c) => c.phase === 'BEFORE' && c.startTimeSeconds)
+    .map((c) => ({
+      id: `cf:${c.id}`,
+      platform: 'codeforces',
+      name: c.name,
+      url: `https://codeforces.com/contests/${c.id}`,
+      start: c.startTimeSeconds! * 1000,
+      durationMin: Math.round(c.durationSeconds / 60)
+    }))
 }

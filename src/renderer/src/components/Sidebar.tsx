@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import {
-  BarChart3, BookOpenText, CloudRain, Coffee, LayoutDashboard, Moon, NotebookPen, PanelLeftClose, PanelLeftOpen,
+  BarChart3, BookOpenText, Building2, CloudRain, Coffee, Flag, LayoutDashboard, Moon, NotebookPen, PanelLeftClose, PanelLeftOpen,
   RefreshCw, Repeat, Settings as SettingsIcon, Sun, Volume2, VolumeX
 } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -13,6 +13,8 @@ const NAV = [
   { to: '/today', label: 'Today', icon: Coffee },
   { to: '/sheet', label: 'Problem Sheet', icon: BookOpenText },
   { to: '/revision', label: 'Revision', icon: Repeat },
+  { to: '/companies', label: 'Company Prep', icon: Building2 },
+  { to: '/contests', label: 'Contests', icon: Flag },
   { to: '/mistakes', label: 'Mistake Log', icon: NotebookPen },
   { to: '/stats', label: 'Stats', icon: BarChart3 },
   { to: '/settings', label: 'Settings', icon: SettingsIcon }

@@ -138,6 +138,41 @@ DETAIL_LABELS = [
 ]
 
 
+COMPANIES = {
+    "Amazon", "Google", "Meta", "Microsoft", "LinkedIn", "Bloomberg", "Uber", "Apple", "Adobe",
+    "Airbnb", "Yelp", "Pinterest", "Twitter", "Snapchat", "Palantir",
+}
+COMPANY_ALIASES = {"Facebook": "Meta", "Facebook/Meta": "Meta"}
+
+
+def parse_companies(raw: str) -> dict:
+    """'Amazon, Google — extremely frequently asked (often a warm-up)' -> names + the free-text note.
+
+    The note after the dash (or in parentheses) can itself contain commas, so cut it off before splitting.
+    'everywhere' means the problem is asked across the board rather than at a named company.
+    """
+    raw = raw.strip(" .")
+    names, _, note = raw.partition(" — ")
+    paren = re.search(r"\s*\(([^)]*)\)", names)
+    if paren:
+        note = ", ".join(x for x in (paren.group(1), note) if x)
+        names = names[:paren.start()] + names[paren.end():]
+    out = {"companies": []}
+    for n in (x.strip(" .") for x in names.split(",")):
+        if not n:
+            continue
+        if n == "everywhere":
+            out["everywhere"] = True
+            continue
+        n = COMPANY_ALIASES.get(n, n)
+        assert n in COMPANIES, f"unknown company {n!r} in {raw!r}"
+        if n not in out["companies"]:
+            out["companies"].append(n)
+    if note:
+        out["companyNote"] = note[0].upper() + note[1:]
+    return out
+
+
 def parse_detail(body: str) -> dict:
     body = re.sub(r"\s+", " ", body).strip()
     # Some entries omit the "Primary/Secondary Pattern" label and start with ": <pattern>."
@@ -151,7 +186,7 @@ def parse_detail(body: str) -> dict:
         end = marks[i + 1].start() if i + 1 < len(marks) else len(body)
         out.setdefault(m.lastgroup, body[m.end():end].strip())
     if "companies" in out:
-        out["companies"] = [c.strip(" .") for c in out["companies"].split(",") if c.strip(" .")]
+        out.update(parse_companies(out["companies"]))
     body = body.lstrip("— ")
     out["text"] = body
     # Cross-listed problems ("see #55, listed again as ...") carry no details of their own.

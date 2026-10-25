@@ -1,10 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, ChevronDown, ExternalLink, Lightbulb, Search, Timer } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { GuideProblem, GuideTopic } from '@shared/types'
+import { askedAt, detailsOf, listCompanies, targetMatch } from '@shared/companies'
 import { Bar, Button, Card, DifficultyPill, LevelPill, PageHeader, Pill, Segmented, Stars, cx, inputClass } from '../components/ui'
 import { useApp } from '../lib/store'
-import { guideRef, hintFor, timeboxFor } from '../lib/problem'
+import { companyLine, guideRef, hintFor, timeboxFor } from '../lib/problem'
 
 type Status = 'all' | 'todo' | 'done'
 type ListFilter = 'all' | 'essential' | 'core' | 'roi'
@@ -17,6 +19,11 @@ export function Sheet(): ReactNode {
   const [status, setStatus] = useState<Status>('all')
   const [list, setList] = useState<ListFilter>('all')
   const [query, setQuery] = useState('')
+  const [params] = useSearchParams()
+  /** 'all', 'targets', or a company name. */
+  const [company, setCompany] = useState(() => params.get('company') ?? 'all')
+  const companies = useMemo(() => (guide ? listCompanies(guide) : []), [guide])
+  const targets = settings?.targetCompanies ?? []
   const [open, setOpen] = useState<Set<string>>(new Set())
 
   const effectiveTrack = track === 'mine' ? (settings?.track ?? 'C') : track
@@ -33,13 +40,17 @@ export function Sheet(): ReactNode {
           if (status === 'todo' && done) return false
           if (status === 'done' && !done) return false
           if (list !== 'all' && !lists[list].has(p.no)) return false
+          if (company !== 'all') {
+            const d = detailsOf(guide, p)
+            if (company === 'targets' ? !targetMatch(d, targets) : !askedAt(d, company)) return false
+          }
           if (q && !p.title.toLowerCase().includes(q) && !(p.details.pattern ?? '').toLowerCase().includes(q)) return false
           return true
         })
         return { topic, all, shown, done: all.filter((p) => sheet.solved[p.slug]).length }
       })
       .filter((g) => g.all.length > 0 && g.shown.length > 0)
-  }, [guide, effectiveTrack, status, list, query, sheet])
+  }, [guide, effectiveTrack, status, list, query, sheet, company, targets])
 
   if (!guide) return null
   const essential = new Set(guide.lists.essential)
@@ -50,7 +61,7 @@ export function Sheet(): ReactNode {
       else n.add(name)
       return n
     })
-  const filtering = query.trim() !== '' || status !== 'all' || list !== 'all'
+  const filtering = query.trim() !== '' || status !== 'all' || list !== 'all' || company !== 'all'
 
   return (
     <div>
@@ -77,6 +88,22 @@ export function Sheet(): ReactNode {
           onChange={setList}
           options={[{ value: 'all', label: 'Any list' }, { value: 'essential', label: '50 Essential' }, { value: 'core', label: '100 Core' }, { value: 'roi', label: 'Top ROI' }]}
         />
+        <div className="w-52">
+          <select
+            aria-label="Company"
+            className={cx(inputClass, 'cursor-pointer py-2', company !== 'all' && 'border-sage')}
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+          >
+            <option value="all">Any company</option>
+            {targets.length > 0 && <option value="targets">🎯 My targets</option>}
+            {companies.map((c) => (
+              <option key={c.company} value={c.company}>
+                {c.company} ({c.count})
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -104,7 +131,7 @@ export function Sheet(): ReactNode {
                       <PatternCard topic={topic} />
                       <div className="mt-3">
                         {shown.map((p) => (
-                          <ProblemRow key={p.no} p={p} essential={essential.has(p.no)} />
+                          <ProblemRow key={p.no} p={p} essential={essential.has(p.no)} target={targetMatch(detailsOf(guide, p), targets)} />
                         ))}
                       </div>
                     </div>
@@ -150,14 +177,14 @@ function PatternCard({ topic }: { topic: GuideTopic }): ReactNode {
   )
 }
 
-function ProblemRow({ p, essential }: { p: GuideProblem; essential: boolean }): ReactNode {
+function ProblemRow({ p, essential, target }: { p: GuideProblem; essential: boolean; target: string | null }): ReactNode {
   const guide = useApp((s) => s.guide)!
   const solved = useApp((s) => s.sheet.solved[p.slug])
   const revision = useApp((s) => s.sheet.revisions[p.slug])
   const openSolve = useApp((s) => s.openSolve)
   const startFocus = useApp((s) => s.startFocus)
   const [expanded, setExpanded] = useState(false)
-  const d = p.details.seeAlso ? (guide.problems.find((x) => x.no === p.details.seeAlso)?.details ?? p.details) : p.details
+  const d = detailsOf(guide, p)
   const ref = guideRef(p)
 
   const toggleSolved = (): void => {
@@ -185,6 +212,7 @@ function ProblemRow({ p, essential }: { p: GuideProblem; essential: boolean }): 
         </button>
         {essential && <Pill className="bg-butter-soft text-butter-deep">Essential</Pill>}
         {p.details.seeAlso && <Pill className="bg-bg-deep text-muted">also #{p.details.seeAlso}</Pill>}
+        {target && <Pill className="bg-sage-soft text-sage-deep">🎯 {target}</Pill>}
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {revision && revision.dueAt <= Date.now() && <Pill className="bg-lavender/25 text-ink-soft">review due</Pill>}
           <LevelPill level={p.level} />
@@ -211,7 +239,7 @@ function ProblemRow({ p, essential }: { p: GuideProblem; essential: boolean }): 
           {d.insight && <Detail k="Insight" v={d.insight} />}
           {d.mistake && <Detail k="Common mistake" v={d.mistake} />}
           {d.variation && <Detail k="Variation" v={d.variation} />}
-          {d.companies?.length ? <Detail k="Companies" v={d.companies.join(', ')} /> : null}
+          {d.companies?.length || d.everywhere ? <Detail k="Companies" v={companyLine(d)} /> : null}
           {!d.pattern && !d.approach && d.text && <p className="col-span-2">{d.text}</p>}
           {solved && (
             <p className="col-span-2 text-[12px] text-muted">

@@ -19,6 +19,12 @@ export async function getJson<T>(url: string, init: RequestInit = {}, timeoutMs 
   return (await res.json()) as T
 }
 
+export async function getText(url: string, timeoutMs = 30_000): Promise<string> {
+  const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(timeoutMs) })
+  if (!res.ok) throw new HttpError(`${new URL(url).host} responded ${res.status}`, res.status)
+  return res.text()
+}
+
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
 /** Spaces out calls to one host (Codeforces allows ~1 request / 2 s, kenkoooo asks for ≥1 s). */

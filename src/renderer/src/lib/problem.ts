@@ -1,4 +1,4 @@
-import type { Guide, GuideProblem, ProblemRef } from '@shared/types'
+import type { Guide, GuideProblem, ProblemDetails, ProblemRef } from '@shared/types'
 
 export const LEVELS = {
   1: { emoji: '🟢', label: 'Foundation' },
@@ -36,4 +36,10 @@ export function timeAgo(t: number | null): string {
   const h = Math.round(m / 60)
   if (h < 24) return `${h}h ago`
   return `${Math.round(h / 24)}d ago`
+}
+
+/** "Amazon, Google · Extremely frequently asked", or "Asked everywhere". */
+export function companyLine(d: ProblemDetails): string {
+  const names = [...(d.companies ?? []), ...(d.everywhere ? [d.companies?.length ? 'and everywhere else' : 'Asked everywhere'] : [])].join(', ')
+  return d.companyNote ? `${names} · ${d.companyNote}` : names
 }

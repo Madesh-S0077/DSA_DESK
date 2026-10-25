@@ -4,11 +4,13 @@ import { useState, type ReactNode } from 'react'
 import type { ExternalPick, Guide, Recommendation } from '@shared/types'
 import { PLATFORM_LABEL } from '@shared/types'
 import { parseDateKey } from '@shared/dates'
+import { detailsOf } from '@shared/companies'
 import { Bar, Button, Card, CardTitle, DifficultyPill, Empty, LevelPill, PageHeader, Pill, Skeleton, Stars } from '../components/ui'
 import { ProblemActions } from '../components/ProblemActions'
 import { ConfidencePicker } from '../components/Dialogs'
+import { ContestBanner } from './Contests'
 import { useApp, useData } from '../lib/store'
-import { guideRef, hintFor, plural } from '../lib/problem'
+import { companyLine, guideRef, hintFor, plural } from '../lib/problem'
 
 export function Today(): ReactNode {
   const { data } = useData(() => window.api.getToday())
@@ -43,6 +45,8 @@ export function Today(): ReactNode {
           <Empty icon="🎓" title="You’ve finished your whole track">Switch to a bigger track in Settings, or spend today on revision.</Empty>
         </Card>
       )}
+
+      <ContestBanner />
 
       <h2 className="mt-9 mb-4 flex items-center gap-2 font-serif text-[20px] font-semibold">
         <Compass size={18} className="text-sage-deep" /> From around the web
@@ -83,7 +87,7 @@ export function Today(): ReactNode {
 
 function PotdHero({ guide, rec, solved }: { guide: Guide; rec: Recommendation; solved: boolean }): ReactNode {
   const p = rec.problem
-  const d = p.details.seeAlso ? (guide.problems.find((x) => x.no === p.details.seeAlso)?.details ?? p.details) : p.details
+  const d = detailsOf(guide, p)
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -106,7 +110,7 @@ function PotdHero({ guide, rec, solved }: { guide: Guide; rec: Recommendation; s
           ))}
         </div>
         {(d.why || d.concept) && <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-ink-soft">{d.why ? `Why it matters: ${d.why}` : d.concept}</p>}
-        {d.companies?.length ? <p className="mt-2 text-[13px] text-muted">Asked at {d.companies.join(', ')}</p> : null}
+        {d.companies?.length || d.everywhere ? <p className="mt-2 text-[13px] text-muted">Companies: {companyLine(d)}</p> : null}
         <div className="mt-6">
           <ProblemActions problem={guideRef(p)} hint={hintFor(guide, p)} solved={solved} showMistake={solved} />
         </div>

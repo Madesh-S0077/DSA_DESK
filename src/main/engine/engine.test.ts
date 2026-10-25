@@ -6,6 +6,7 @@ import { currentWeek, recommend, topicStats } from './recommend'
 import { INTERVALS, schedule } from './revision'
 import { hashSeed, pickNearRating, seededPick } from './potd'
 import { topicForTags } from '../sync/topics'
+import { askedAt, detailsOf, listCompanies, problemsFor, targetMatch } from '@shared/companies'
 
 const guide = guideJson as Guide
 const byNo = new Map(guide.problems.map((p) => [p.no, p]))
@@ -67,6 +68,32 @@ describe('recommend', () => {
     const greedy = stats.find((s) => s.topic === 'Greedy')!
     expect(arrays.solved).toBe(1)
     expect(greedy.solved).toBe(1)
+  })
+})
+
+describe('companies', () => {
+  it('has clean company names: aliases merged, notes split off', () => {
+    const names = listCompanies(guide).map((c) => c.company)
+    expect(names.slice(0, 3).sort()).toEqual(['Amazon', 'Google', 'Meta'])
+    expect(names).not.toContain('Facebook')
+    expect(names.every((n) => /^[A-Z][A-Za-z]+$/.test(n))).toBe(true)
+    expect(guide.problems.every((p) => p.details.companies?.length || p.details.everywhere || p.details.seeAlso)).toBe(true)
+  })
+  it('counts "asked everywhere" problems for every company, once per slug', () => {
+    const everywhere = guide.problems.find((p) => p.details.everywhere)!
+    expect(askedAt(everywhere.details, 'Palantir')).toBe(true)
+    const amazon = problemsFor(guide, 'Amazon')
+    expect(amazon).toContain(everywhere)
+    expect(new Set(amazon.map((p) => p.slug)).size).toBe(amazon.length)
+    expect(listCompanies(guide).find((c) => c.company === 'Amazon')!.count).toBe(amazon.length)
+  })
+  it('gives target-company problems a bonus with a reason', () => {
+    const targetFor = (p: GuideProblem): string | null => targetMatch(detailsOf(guide, p), ['Bloomberg'])
+    const base = recommend({ problems: track('C'), solvedSlugs: new Set(), week: null, ...empty }, 200)
+    const boosted = recommend({ problems: track('C'), solvedSlugs: new Set(), week: null, ...empty, targetFor }, 200)
+    const bloomberg = boosted.find((r) => r.reasons.includes('Asked at Bloomberg'))!
+    expect(bloomberg).toBeDefined()
+    expect(bloomberg.score).toBe(base.find((r) => r.problem.no === bloomberg.problem.no)!.score + 3)
   })
 })
 

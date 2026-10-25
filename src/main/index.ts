@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Menu, nativeImage, nativeTheme, Notification, shell, Tray } from 'electron'
 import { join } from 'path'
-import type { Settings } from '@shared/types'
+import { PLATFORM_LABEL, type Settings } from '@shared/types'
 import { dateKey } from '@shared/dates'
 import guide from '@data/guide.json'
 import type { Guide } from '@shared/types'
@@ -66,6 +66,7 @@ function createTray(service: Service): void {
     Menu.buildFromTemplate([
       { label: "Today's problems", click: () => showWindow('/today') },
       { label: 'Dashboard', click: () => showWindow('/') },
+      { label: 'Upcoming contests', click: () => showWindow('/contests') },
       { label: 'Sync now', click: () => void syncAll(service) },
       { type: 'separator' },
       { label: 'Quit DSA Desk', click: () => { quitting = true; app.quit() } }
@@ -74,19 +75,31 @@ function createTray(service: Service): void {
   tray.on('click', () => showWindow())
 }
 
-/** Checks once a minute: goal reminder at the chosen time, streak-at-risk nudge at 22:00. */
+/**
+ * Checks once a minute: goal reminder at the chosen time, streak-at-risk nudge at 22:00,
+ * and a heads-up shortly before each followed contest starts.
+ */
 function startReminders(service: Service): void {
   const fired = new Set<string>()
-  const notify = (id: string, title: string, body: string): void => {
+  const notify = (id: string, title: string, body: string, path = '/today'): void => {
     const key = `${dateKey()}:${id}`
     if (fired.has(key) || !Notification.isSupported()) return
     fired.add(key)
     const n = new Notification({ title, body, icon: iconPath, silent: false })
-    n.on('click', () => showWindow('/today'))
+    n.on('click', () => showWindow(path))
     n.show()
   }
   setInterval(() => {
     const s = service.store.getSettings()
+    if (s.contestReminders) {
+      for (const c of service.cachedContests()) {
+        const mins = Math.round((c.start - Date.now()) / 60_000)
+        // A small window, so a contest isn't announced as "starting" after it already began.
+        if (mins <= s.contestLeadMin && mins >= 0) {
+          notify(`contest:${c.id}`, `🏁 ${c.name}`, `Starts ${mins <= 1 ? 'now' : `in ${mins} minutes`} on ${PLATFORM_LABEL[c.platform]}. Water, snacks, focus.`, '/contests')
+        }
+      }
+    }
     if (!s.reminders) return
     const now = new Date()
     const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
@@ -145,7 +158,10 @@ if (!app.requestSingleInstanceLock()) {
     if (!app.isPackaged && process.env.DSA_DESK_SHOT && win) void captureScreens(win, process.env.DSA_DESK_SHOT)
     startReminders(service)
 
-    const sync = (): void => void syncAll(service).catch(() => broadcast('data-changed'))
+    const sync = (): void => {
+      void syncAll(service).catch(() => broadcast('data-changed'))
+      void service.contests().catch(() => undefined)
+    }
     setTimeout(sync, 3_000)
     setInterval(sync, SYNC_EVERY_MS)
   })

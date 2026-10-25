@@ -235,8 +235,9 @@
      "Google",
      "Meta",
      "Apple",
-     "Microsoft — the most frequently asked question industry-wide"
+     "Microsoft"
     ],
+    "companyNote": "The most frequently asked question industry-wide",
     "text": "Primary/Secondary Pattern: Hashing / Complement lookup. Key Concept: store value→index while scanning, check for complement. Why it matters: the canonical interview warm-up; complement-lookup generalizes to 3Sum, 4Sum, subarray-sum problems. Prerequisites: none. Approach: single pass hash map of seen values to index. Insight: only need one pass because you check-then-insert. Common mistake: using the same element twice; returning values instead of indices. Follow-up: Two Sum II (sorted array → two pointers), Two Sum BST. Companies: Amazon, Google, Meta, Apple, Microsoft — the most frequently asked question industry-wide."
    },
    "topic": "Arrays & Hashing",
@@ -441,8 +442,9 @@
     "companies": [
      "Amazon",
      "Microsoft",
-     "LinkedIn — extremely common"
+     "LinkedIn"
     ],
+    "companyNote": "Extremely common",
     "text": "Primary/Secondary Pattern: Dynamic Programming (1D) / Greedy. Key Concept: at each index decide whether to extend the previous subarray or start fresh. Why it matters: Kadane's is the entry point to 1D DP thinking — \"extend vs restart\" recurs throughout DP. Prerequisites: none. Approach: cur = max(num, cur+num) , track global max. Insight: the moment cur drops below 0 it can never help a future sum. Common mistake: initializing global max to 0 instead of -infinity (fails on all-negative arrays). Follow-up: return the subarray itself; Maximum Circular Subarray. Companies: Amazon, Microsoft, LinkedIn — extremely common."
    },
    "topic": "Arrays & Hashing",
@@ -642,8 +644,9 @@
      "Meta",
      "Amazon",
      "Microsoft",
-     "Google — top-asked question"
+     "Google"
     ],
+    "companyNote": "Top-asked question",
     "text": "Primary/Secondary Pattern: Sort + fix one element + two pointers on the rest. Key concept: reduce 3-variable search to 2-variable via sorting and fixing. Why it matters: as one of the most- asked MAANG mediums, and the template for k-Sum generalization. Prereq: #18. Approach: sort array; for each i, two-pointer search for pairs summing to -nums[i] ; skip duplicate i and duplicate pair values. Insight: the \"skip duplicates\" logic must run on both the outer loop and the inner pointers. Mistake: producing duplicate triplets. Variation: 4Sum, 3Sum Smaller, k-Sum general recursion. Companies: Meta, Amazon, Microsoft, Google — top-asked question."
    },
    "topic": "Two Pointers",
@@ -715,8 +718,9 @@
     "companies": [
      "Amazon",
      "Google",
-     "Meta — extremely frequent"
+     "Meta"
     ],
+    "companyNote": "Extremely frequent",
     "text": "Primary/Secondary Pattern: Two pointers tracking running max height from both sides. Key concept: water above index i = min(maxLeft, maxRight) - height[i]. Why it matters: as one of the most iconic hard problems, testable via two pointers, DP (precomputed max arrays), or monotonic stack — knowing all three shows depth. Prereq: #21. Approach: two pointers with leftMax/rightMax; advance the side with the smaller max, since that side's water level is determined. Insight: you never need the global max, only the smaller of the two current maxes. Mistake: trying to compute exact height contribution without realizing the min(leftMax,rightMax) trick. Variation: Trapping Rain Water II (2D, heap-based). Companies: Amazon, Google, Meta — extremely frequent."
    },
    "topic": "Two Pointers",
@@ -811,8 +815,9 @@
     "variation": "Buy/Sell Stock II (multiple transactions, greedy), III/IV (DP with k transactions), with cooldown.",
     "companies": [
      "Amazon",
-     "Meta — universally asked"
+     "Meta"
     ],
+    "companyNote": "Universally asked",
     "text": "Primary/Secondary Pattern: Implicit sliding window / single pass min-tracking. Key concept: track minimum price seen so far, compute profit at each step. Why it matters: as the easiest gateway into \"single pass with running state\" thinking. Prereq: none. Approach: track minPrice , update maxProfit = max(maxProfit, price-minPrice) . Insight: this is really a size-varying window where left pointer = index of minimum. Mistake: computing all pairs O(n2). Variation: Buy/Sell Stock II (multiple transactions, greedy), III/IV (DP with k transactions), with cooldown. Companies: Amazon, Meta — universally asked."
    },
    "topic": "Sliding Window",
@@ -838,8 +843,9 @@
      "Amazon",
      "Meta",
      "Microsoft",
-     "Bloomberg — top-tier frequency"
+     "Bloomberg"
     ],
+    "companyNote": "Top-tier frequency",
     "text": "Primary/Secondary Pattern: Variable window + frequency/last-seen map. Key concept: shrink window whenever a repeat is found by jumping left pointer past the previous occurrence. Why it matters: as the definitive variable-window template. Prereq: none. Approach: hash map of char→last index; when a repeat is found within window, move left to lastIndex+1 . Insight: left pointer only ever moves forward — never reset to 0. Mistake: using a naive shrink loop instead of the O(1) jump (still correct but less optimal to explain). Variation: Longest Substring with At Most Two Distinct Characters. Companies: Amazon, Meta, Microsoft, Bloomberg — top-tier frequency."
    },
    "topic": "Sliding Window",
@@ -935,8 +941,9 @@
     "mistake": "using a max-heap (O(n log n), works but suboptimal) instead of a deque.",
     "companies": [
      "Amazon",
-     "Google — classic hard"
+     "Google"
     ],
+    "companyNote": "Classic hard",
     "text": "Primary/Secondary Pattern: Monotonic deque. Key concept: maintain a deque of indices in decreasing value order; front is always the current window max. Why it matters: as the bridge between Sliding Window and Monotonic Queue topics. Prereq: #27. Approach: pop smaller values off the back before pushing; pop front if it falls outside window. Insight: each index is pushed/popped at most once → O(n) despite nested-looking logic. Mistake: using a max-heap (O(n log n), works but suboptimal) instead of a deque. Companies: Amazon, Google — classic hard."
    },
    "topic": "Sliding Window",
@@ -1004,7 +1011,7 @@
     "mistake": "not recognizing the shared template and re-deriving from scratch.",
     "companies": [
      "Google",
-     "Facebook/Meta"
+     "Meta"
     ],
     "text": "Primary/Secondary Pattern: Variable window with a flip budget (identical shape to #28 but with 0/1 arrays). Why it matters: for reinforcing the budgeted-window template with a simpler data type before revisiting #28/#30. Prereq: #27. Approach: track count of zeros in window; shrink when zero-count exceeds k. Insight: same \"budget\" abstraction as Longest Repeating Character Replacement. Mistake: not recognizing the shared template and re-deriving from scratch. Companies: Google, Facebook/Meta."
    },
@@ -1026,9 +1033,8 @@
     "approach": "classic.",
     "insight": "lo+(hi-lo)/2 avoids overflow in languages with fixed-width ints.",
     "mistake": "hi = nums.length vs nums.length-1 confusion.",
-    "companies": [
-     "everywhere"
-    ],
+    "companies": [],
+    "everywhere": true,
     "text": "Primary/Secondary Pattern: Standard template. Key concept: lo<=hi , mid=lo+(hi-lo)/2 , adjust bounds. Why it matters: as the base template everything else modifies. Prereq: none. Approach: classic. Insight: lo+(hi-lo)/2 avoids overflow in languages with fixed-width ints. Mistake: hi = nums.length vs nums.length-1 confusion. Companies: everywhere."
    },
    "topic": "Binary Search",
@@ -1100,8 +1106,9 @@
     "companies": [
      "Amazon",
      "Microsoft",
-     "Meta — very frequent"
+     "Meta"
     ],
+    "companyNote": "Very frequent",
     "text": "Primary/Secondary Pattern: Modified binary search — determine which half is sorted, then decide if target lies in it. Why it matters: as the most iconic \"binary search on modified structure\" problem. Prereq: #35. Approach: compare nums[mid] with nums[lo] to know which half is sorted, then range-check target against that half. Insight: at least one half around mid is always properly sorted — that's the invariant to exploit. Mistake: forgetting <= vs < when checking which side is sorted. Variation: with duplicates (Search in Rotated Sorted Array II), Find Minimum in Rotated Sorted Array. Companies: Amazon, Microsoft, Meta — very frequent."
    },
    "topic": "Binary Search",
@@ -1172,8 +1179,9 @@
     "variation": "Capacity to Ship Packages, Split Array Largest Sum, Minimum Days to Make Bouquets.",
     "companies": [
      "Google",
-     "Amazon — flagship \"search space\" problem"
+     "Amazon"
     ],
+    "companyNote": "Flagship \"search space\" problem",
     "text": "Primary/Secondary Pattern: Binary search on the answer with a feasibility check. Key concept: guess an eating speed, compute hours needed, binary search the minimum feasible speed. Why it matters: as the definitive intro to \"binary search on answer\" — the single highest-leverage pattern in this section. Prereq: #35. Approach: search speed in [1, max(piles)] ; feasibility = sum(ceil(pile/speed)) <= h . Insight: recognizing monotonicity (\"if speed S works, any speed > S also works\") is what licenses binary search here. Mistake: not identifying the monotonic feasibility function, trying brute force instead. Variation: Capacity to Ship Packages, Split Array Largest Sum, Minimum Days to Make Bouquets. Companies: Google, Amazon — flagship \"search space\" problem."
    },
    "topic": "Binary Search",
@@ -1195,7 +1203,7 @@
     "mistake": "wrong bound initialization.",
     "companies": [
      "Google",
-     "Facebook/Meta"
+     "Meta"
     ],
     "text": "Primary/Secondary Pattern: Binary search on answer, identical shape to #41. Why it matters: for repetition/reinforcement — recognizing the same pattern in a differently-worded problem. Prereq: #41. Approach: search capacity in [max(weights), sum(weights)] ; feasibility = can ship within D days at that capacity. Insight: the search bounds themselves encode the trivial min/max feasibility endpoints. Mistake: wrong bound initialization. Companies: Google, Facebook/Meta."
    },
@@ -1243,8 +1251,9 @@
     "companies": [
      "Google",
      "Apple",
-     "Microsoft — famously hard"
+     "Microsoft"
     ],
+    "companyNote": "Famously hard",
     "text": "Primary/Secondary Pattern: Binary search for a partition point across two arrays. Key concept: binary search on the smaller array to find a partition such that left halves ≤ right halves across both arrays. Why it matters: as one of the most notorious hard problems — a strong signal of deep binary-search fluency. Prereq: #35, #37. Approach: binary search partition index in the smaller array; derive the other array's partition from total length; compare boundary elements. Insight: always binary search on the shorter array to keep the partition bound valid. Mistake: mishandling even/odd total length or empty-partition edge values (use ±infinity sentinels). Companies: Google, Apple, Microsoft — famously hard."
    },
    "topic": "Binary Search",
@@ -1290,9 +1299,9 @@
     "insight": "also learn the recursive version — reverse(head.next) then fix head.next.next=head .",
     "mistake": "losing the next reference before reassigning.",
     "variation": "reverse between positions m and n, reverse in k-groups.",
-    "companies": [
-     "everywhere — most-asked list question"
-    ],
+    "companies": [],
+    "everywhere": true,
+    "companyNote": "Most-asked list question",
     "text": "Primary/Secondary Pattern: Iterative pointer reversal. Key concept: track prev , curr , next and flip the arrow each step. Why it matters: as the foundational operation reused inside dozens of harder list problems. Prereq: none. Approach: iterate, save next , set curr.next=prev , shift all three forward. Insight: also learn the recursive version — reverse(head.next) then fix head.next.next=head . Mistake: losing the next reference before reassigning. Variation: reverse between positions m and n, reverse in k-groups. Companies: everywhere — most-asked list question."
    },
    "topic": "Linked Lists",
@@ -1459,8 +1468,9 @@
     "variation": "Add Two Numbers II (non-reversed, use a stack).",
     "companies": [
      "Amazon",
-     "Microsoft — very common"
+     "Microsoft"
     ],
+    "companyNote": "Very common",
     "text": "Primary/Secondary Pattern: Digit-by-digit addition with carry, represented as reversed linked lists. Key concept: simultaneous traversal with carry propagation, similar to elementary-school addition. Why it matters: as the classic \"simulate arithmetic on a list\" problem. Prereq: #47. Approach: dummy head, sum digits + carry at each step, create new node for sum % 10 , carry sum / 10 . Insight: continue looping while either list has nodes OR carry is nonzero. Mistake: forgetting a trailing carry after both lists end. Variation: Add Two Numbers II (non-reversed, use a stack). Companies: Amazon, Microsoft — very common."
    },
    "topic": "Linked Lists",
@@ -1486,8 +1496,9 @@
      "Amazon",
      "Google",
      "Meta",
-     "Uber — a top design question"
+     "Uber"
     ],
+    "companyNote": "A top design question",
     "text": "Primary/Secondary Pattern: Doubly linked list + hash map design. Key concept: hash map gives O(1) lookup, doubly linked list gives O(1) reordering/eviction — together they support O(1) get / put . Why it matters: as one of the most-asked design problems across all of MAANG, testing whether you can combine data structures for combined guarantees. Prereq: #46, #47 conceptually. Approach: map key→node; on access, unlink node and move to front (most- recently-used end); evict from the tail on overflow. Insight: use dummy head AND tail sentinels to avoid null-checks when unlinking. Mistake: forgetting to update the map on eviction, or mishandling capacity=0. Variation: LFU Cache (harder — frequency buckets of doubly linked lists). Companies: Amazon, Google, Meta, Uber — a top design question."
    },
    "topic": "Linked Lists",
@@ -1511,8 +1522,9 @@
     "companies": [
      "Google",
      "Amazon",
-     "Meta — classic hard"
+     "Meta"
     ],
+    "companyNote": "Classic hard",
     "text": "Primary/Secondary Pattern: Min-heap over list heads, or divide-and- conquer pairwise merge. Key concept: repeatedly extract the globally smallest head from k lists. Why it matters: as the natural generalization of #47, and a bridge into the Heap topic. Prereq: #47. Approach (heap): push all k heads into a min-heap keyed by value, pop-and-push-next repeatedly. Approach (D&C): merge lists pairwise like merge sort, O(n log k) . Insight: divide-and-conquer avoids heap overhead and is often the more impressive answer. Mistake: naively concatenating and sorting ( O(n log n) instead of O(n log k) , weaker answer). Companies: Google, Amazon, Meta — classic hard."
    },
    "topic": "Linked Lists",
@@ -1581,9 +1593,8 @@
     "approach": "map closing→opening, push opens, pop on close and check match.",
     "insight": "an empty stack at the end (and never popping empty mid-way) is the full validity condition.",
     "mistake": "forgetting to check the stack is empty at the very end.",
-    "companies": [
-     "everywhere"
-    ],
+    "companies": [],
+    "everywhere": true,
     "text": "Primary/Secondary Pattern: Stack-based bracket matching. Key concept: push opens, pop-and-compare on closes. Why it matters: as the canonical stack warm-up. Prereq: none. Approach: map closing→opening, push opens, pop on close and check match. Insight: an empty stack at the end (and never popping empty mid-way) is the full validity condition. Mistake: forgetting to check the stack is empty at the very end. Companies: everywhere."
    },
    "topic": "Stack & Monotonic Stack",
@@ -1606,8 +1617,9 @@
     "mistake": "trying to recompute the min by scanning (defeats O(1)).",
     "companies": [
      "Amazon",
-     "Meta — frequent design question"
+     "Meta"
     ],
+    "companyNote": "Frequent design question",
     "text": "Primary/Secondary Pattern: Auxiliary stack tracking running minimum. Key concept: push (value, currentMin) pairs, or maintain a parallel min-stack. Why it matters: as a design problem testing \"augment a stack with extra O(1) query capability.\" Prereq: #58. Approach: parallel stack pushes min(newVal, minStack.top()) each time. Insight: no need to pop conditionally from the min-stack — pushing a duplicate min on every push/pop keeps both stacks the same length and in sync. Mistake: trying to recompute the min by scanning (defeats O(1)). Companies: Amazon, Meta — frequent design question."
    },
    "topic": "Stack & Monotonic Stack",
@@ -1654,8 +1666,9 @@
     "variation": "Next Greater Element I/II, Online Stock Span.",
     "companies": [
      "Amazon",
-     "Google — extremely popular monotonic stack intro"
+     "Google"
     ],
+    "companyNote": "Extremely popular monotonic stack intro",
     "text": "Primary/Secondary Pattern: Monotonic decreasing stack of indices. Key concept: maintain a stack of indices whose temperatures are decreasing; pop and resolve whenever a warmer day appears. Why it matters: as the cleanest possible \"next greater element, with distance\" template. Prereq: #58. Approach: iterate, while stack top's temp < current, pop and set answer[popped] = i - popped . Insight: storing indices (not values) is essential since the answer needs distance, not the value itself. Mistake: storing values, then being unable to compute distance. Variation: Next Greater Element I/II, Online Stock Span. Companies: Amazon, Google — extremely popular monotonic stack intro."
    },
    "topic": "Stack & Monotonic Stack",
@@ -1725,8 +1738,9 @@
     "companies": [
      "Google",
      "Amazon",
-     "Meta — a flagship hard problem"
+     "Meta"
     ],
+    "companyNote": "A flagship hard problem",
     "text": "Primary/Secondary Pattern: Monotonic increasing stack of indices, resolving width spans. Key concept: for each bar, find the largest rectangle where that bar is the shortest — determined by nearest smaller bar to the left and right. Why it matters: as one of the most important hard-tier monotonic stack problems, directly setting up Maximal Rectangle. Prereq: #61. Approach: push indices while heights increasing; when a smaller bar appears, pop and compute area using the popped height and the width between the new stack top and current index. Insight: appending a sentinel 0 -height bar at the end forces all remaining stack entries to resolve. Mistake: mis-computing width when the stack becomes empty after a pop (means it extends to index -1). Companies: Google, Amazon, Meta — a flagship hard problem."
    },
    "topic": "Stack & Monotonic Stack",
@@ -1913,8 +1927,9 @@
     "mistake": "applying the formula without understanding why it can undercount when many tasks tie for max frequency.",
     "companies": [
      "Amazon",
-     "Meta — very common"
+     "Meta"
     ],
+    "companyNote": "Very common",
     "text": "Primary/Secondary Pattern: Greedy + queue simulation, or a closed-form frequency formula. Key concept: schedule the most frequent tasks first, using idle slots (or a cooldown queue) to respect the cooldown constraint. Why it matters: as a strong greedy/queue hybrid frequently asked at MAANG. Prereq: heap basics helpful. Approach (formula): max(len(tasks), (maxFreq-1)*(n+1) + countOfMaxFreqTasks) . Approach (simulation): max-heap of counts + a cooldown queue holding (task, availableTime) . Insight: the formula only works because you can prove the most frequent task determines the schedule's lower bound; the simulation approach is safer to derive under pressure. Mistake: applying the formula without understanding why it can undercount when many tasks tie for max frequency. Companies: Amazon, Meta — very common."
    },
    "topic": "Queue & Monotonic Queue",
@@ -1939,8 +1954,9 @@
     "companies": [
      "Amazon",
      "Meta",
-     "Microsoft — one of the most common tree questions"
+     "Microsoft"
     ],
+    "companyNote": "One of the most common tree questions",
     "text": "Primary/Secondary Pattern: BFS using a queue, processing one full level at a time. Key concept: snapshot len(queue) at the start of each level to know how many nodes belong to it. Why it matters: as the canonical BFS template for trees, reused everywhere. Prereq: none. Approach: queue starts with root; loop while queue non-empty, process levelSize nodes, enqueue children. Insight: capturing level size before enqueuing children is what separates levels cleanly. Mistake: not snapshotting level size, causing levels to blur together. Variation: zigzag level order, right side view, average of levels. Companies: Amazon, Meta, Microsoft — one of the most common tree questions."
    },
    "topic": "Queue & Monotonic Queue",
@@ -2321,8 +2337,9 @@
     "insight": "post- order vs pre-order swap timing doesn't matter here — both work.",
     "mistake": "forgetting the null base case.",
     "companies": [
-     "Google (famously)"
+     "Google"
     ],
+    "companyNote": "Famously",
     "text": "Primary/Secondary Pattern: Simple recursive swap of left/right children. Matters historically as a famous \"can you code at all\" filter question and the simplest recursive-tree template. Prereq: none. Approach: swap node.left / node.right , recurse on both. Insight: post- order vs pre-order swap timing doesn't matter here — both work. Mistake: forgetting the null base case. Companies: Google (famously)."
    },
    "topic": "Trees",
@@ -2342,9 +2359,8 @@
     "approach": "recursive, base case null returns 0.",
     "insight": "this exact shape (post-order aggregation) reappears in diameter, balanced-check, and max path sum.",
     "mistake": "off-by-one (counting edges vs nodes).",
-    "companies": [
-     "everywhere"
-    ],
+    "companies": [],
+    "everywhere": true,
     "text": "Primary/Secondary Pattern: 1 + max(depth(left), depth(right)) . Why it matters: as the template for \"return info from children, combine at parent\" recursion used throughout the topic. Prereq: none. Approach: recursive, base case null returns 0. Insight: this exact shape (post-order aggregation) reappears in diameter, balanced-check, and max path sum. Mistake: off-by-one (counting edges vs nodes). Companies: everywhere."
    },
    "topic": "Trees",
@@ -2456,7 +2472,7 @@
     "mistake": "implementing generic tree LCA (#96) and missing the BST-specific optimization.",
     "companies": [
      "Amazon",
-     "Facebook/Meta"
+     "Meta"
     ],
     "text": "Primary/Secondary Pattern: Use BST ordering to decide direction without exploring both subtrees. Key concept: if both targets are less than current, go left; greater, go right; otherwise current node is the LCA. Why it matters: for showing how BST structure gives O(h) instead of O(n) for LCA (contrast with #96). Prereq: BST property understanding. Approach: iterative or recursive descent using value comparisons. Insight: no need to search both subtrees — BST ordering tells you exactly which way to go. Mistake: implementing generic tree LCA (#96) and missing the BST-specific optimization. Companies: Amazon, Facebook/Meta."
    },
@@ -2481,8 +2497,9 @@
     "companies": [
      "Meta",
      "Amazon",
-     "Google — very frequently asked"
+     "Google"
     ],
+    "companyNote": "Very frequently asked",
     "text": "Primary/Secondary Pattern: General tree LCA via post-order recursion returning \"found target(s) below.\" Key concept: recurse into both children; if both return non-null, current node is the LCA; else propagate whichever side is non-null. Why it matters: as one of the most-asked tree mediums, testing a subtle recursive-return-value design. Prereq: #90. Approach: if node in (p,q) or node is None: return node ; recurse left/right; combine results. Insight: the elegance is that the function does double duty — it both searches for targets and identifies the LCA in a single pass. Mistake: needing two full traversals (compute ancestor paths separately) instead of the one-pass technique. Companies: Meta, Amazon, Google — very frequently asked."
    },
    "topic": "Trees",
@@ -2504,8 +2521,7 @@
     "mistake": "capturing the first node of each level instead of the last (wrong side).",
     "companies": [
      "Amazon",
-     "Meta",
-     "Facebook"
+     "Meta"
     ],
     "text": "Primary/Secondary Pattern: BFS level-order, taking the last node of every level (or DFS right-first, taking the first node seen at each depth). Why it matters: as a level- based-thinking problem, reusing #73's BFS skeleton with a twist. Prereq: #73. Approach: BFS by level, capture the last element per level; or DFS(node, depth) visiting right child first and recording the first visit at each depth. Insight: the DFS variant is a slicker O(n) single-pass alternative worth mentioning. Mistake: capturing the first node of each level instead of the last (wrong side). Companies: Amazon, Meta, Facebook."
    },
@@ -2554,10 +2570,9 @@
      "Amazon",
      "Meta",
      "Microsoft",
-     "Google — extremely frequently asked",
-     "and famous for hidden edge cases (duplicate values",
-     "integer overflow bounds)"
+     "Google"
     ],
+    "companyNote": "Extremely frequently asked, and famous for hidden edge cases (duplicate values, integer overflow bounds)",
     "text": "Primary/Secondary Pattern: DFS carrying a valid (low, high) range down the recursion. Key concept: each node must lie strictly within the range inherited from its ancestors, tightened at each step. Why it matters: as a top interview question exposing a very common bug: checking only immediate children instead of the full ancestor chain. Prereq: #98 (down-recursion pattern). Approach: recurse with bounds, tighten high going left and low going right. Insight: comparing only node.val vs node.left.val / node.right.val is the classic wrong approach — it misses violations from grandparents further up. Mistake: exactly that local- only comparison bug. Companies: Amazon, Meta, Microsoft, Google — extremely frequently asked, and famous for hidden edge cases (duplicate values, integer overflow bounds)."
    },
    "topic": "Trees",
@@ -2628,8 +2643,9 @@
     "mistake": "returning the \"forked\" sum upward instead of just one branch, corrupting the parent's calculation.",
     "companies": [
      "Google",
-     "Meta — a classic hard signal question"
+     "Meta"
     ],
+    "companyNote": "A classic hard signal question",
     "text": "Primary/Secondary Pattern: Post-order recursion returning the best downward path from a node, while tracking a global max that may bend through the node (left+right+val). Why it matters: as one of the most important hard tree problems — combines #93's \"track global while returning a different local value\" pattern with negative-number handling. Prereq: #93, #90. Approach: helper returns max(0, val + max(leftGain, rightGain)) (clamping negative contributions to 0); global max updated with val + leftGain + rightGain at every node. Insight: a path returned upward to the parent can only include one side (can't fork), but the global answer may fork at any node — this distinction is the crux of the problem. Mistake: returning the \"forked\" sum upward instead of just one branch, corrupting the parent's calculation. Companies: Google, Meta — a classic hard signal question."
    },
    "topic": "Trees",
@@ -2652,8 +2668,9 @@
     "companies": [
      "Amazon",
      "Google",
-     "Meta — a top hard-tier design question"
+     "Meta"
     ],
+    "companyNote": "A top hard-tier design question",
     "text": "Primary/Secondary Pattern: Preorder DFS with explicit null markers for encoding; matching recursive parse for decoding. Why it matters: as a top design- style hard problem testing whether you can invent a reversible encoding scheme. Prereq: #90, traversal fluency. Approach: serialize via preorder DFS, appending a sentinel (e.g., \"#\") for nulls, joined by commas; deserialize by consuming tokens from an iterator/queue in the same preorder order. Insight: preorder + null markers uniquely determines tree structure without needing a second traversal (unlike reconstructing from two traversals as in #101). Mistake: using an encoding that doesn't disambiguate structure (e.g., inorder alone is insufficient). Companies: Amazon, Google, Meta — a top hard-tier design question."
    },
    "topic": "Trees",
@@ -2700,9 +2717,9 @@
     "mistake": "sorting the whole array (O(n log n)) when a bounded heap or quickselect is clearly faster and expected.",
     "companies": [
      "Amazon",
-     "Meta",
-     "Facebook — one of the most common heap questions"
+     "Meta"
     ],
+    "companyNote": "One of the most common heap questions",
     "text": "Primary/Secondary Pattern: Min-heap of size k, or Quickselect for O(n) average. Key concept: maintain a min-heap capped at size k; its root is the kth largest. Why it matters: as the foundational \"top K via bounded heap\" template, and a great showcase for discussing Quickselect as an O(n) alternative. Prereq: heap basics. Approach (heap): push each element, pop if size exceeds k. Approach (Quickselect): partition like quicksort, recurse only into the side containing the target rank. Insight: Quickselect achieves O(n) average time (vs O(n log k) heap) by discarding one full side after each partition — mention both approaches for a strong answer. Mistake: sorting the whole array (O(n log n)) when a bounded heap or quickselect is clearly faster and expected. Companies: Amazon, Meta, Facebook — one of the most common heap questions."
    },
    "topic": "Heap / Priority Queue",
@@ -2747,7 +2764,7 @@
     "mistake": "pushing all n points before trimming, instead of maintaining a live cap of k.",
     "companies": [
      "Amazon",
-     "Facebook"
+     "Meta"
     ],
     "text": "Primary/Secondary Pattern: Max-heap of size k keyed by distance (or Quickselect). Key concept: mirror image of #105 — keep the k smallest distances using a max-heap capped at size k, popping the largest when exceeded. Why it matters: for practicing the \"cap- and-pop-worst\" heap template in the opposite direction from #105. Prereq: #105. Approach: push (-distance, point) for a max-heap simulation, pop when size > k. Insight: since you don't need exact sorted order, capping the heap at size k (not size n) is the efficiency win. Mistake: pushing all n points before trimming, instead of maintaining a live cap of k. Companies: Amazon, Facebook."
    },
@@ -2841,8 +2858,9 @@
      "Google",
      "Amazon",
      "Meta",
-     "LinkedIn — a top hard-tier design question"
+     "LinkedIn"
     ],
+    "companyNote": "A top hard-tier design question",
     "text": "Primary/Secondary Pattern: Two heaps — a max-heap for the lower half, a min-heap for the upper half, kept balanced in size. Key concept: median is either the max-heap's top, the min-heap's top, or their average, depending on parity. Why it matters: as the definitive \"two heaps\" pattern, a very common hard/medium-hard MAANG question. Prereq: heap fluency. Approach: insert into one heap, rebalance by moving the top element to the other heap if sizes differ by more than 1. Insight: the two-heaps invariant ( |size difference| <= 1 , max-heap's top ≤ min-heap's top) is what makes median retrieval O(1). Mistake: letting the heaps become unbalanced, or comparing values incorrectly during rebalancing. Companies: Google, Amazon, Meta, LinkedIn — a top hard-tier design question."
    },
    "topic": "Heap / Priority Queue",
@@ -2933,8 +2951,9 @@
     "companies": [
      "Amazon",
      "Meta",
-     "Google — extremely frequently asked"
+     "Google"
     ],
+    "companyNote": "Extremely frequently asked",
     "text": "Primary/Secondary Pattern: DFS/BFS flood fill over a grid, counting connected components of 1 s. Why it matters: as the single most iconic grid-graph problem — the entry point to the entire Graphs topic for most learners. Prereq: recursion/queue basics. Approach: scan the grid, on an unvisited 1 launch DFS/BFS marking the whole island visited, increment count. Insight: sinking visited land (mutate to 0 ) avoids needing a separate visited matrix. Mistake: not marking visited before recursing, causing infinite loops or double counting. Variation: Number of Islands II (Union-Find, dynamic additions), Max Area of Island. Companies: Amazon, Meta, Google — extremely frequently asked."
    },
    "topic": "Graphs",
@@ -3052,8 +3071,9 @@
     "companies": [
      "Amazon",
      "Google",
-     "Meta — extremely common"
+     "Meta"
     ],
+    "companyNote": "Extremely common",
     "text": "Primary/Secondary Pattern: Cycle detection in a directed graph (topological sort feasibility) via DFS coloring or Kahn's BFS algorithm. Key concept: a valid course ordering exists iff the prerequisite graph has no cycle. Why it matters: as the entry point to topological sort / dependency-ordering problems, extremely common at MAANG. Prereq: #115/#117 traversal basics. Approach (DFS): 3-color nodes (unvisited/visiting/visited); a back-edge to a \"visiting\" node means a cycle. Approach (Kahn's BFS): repeatedly remove zero-indegree nodes; if all nodes get removed, no cycle. Insight: Kahn's algorithm elegantly gives you both cycle detection AND (in #121) the actual order for free. Mistake: using simple visited/unvisited DFS coloring (2-color) which fails to detect cycles correctly — you need the 3-state \"currently in recursion stack\" distinction. Companies: Amazon, Google, Meta — extremely common."
    },
    "topic": "Graphs",
@@ -3211,8 +3231,9 @@
     "companies": [
      "Amazon",
      "Meta",
-     "LinkedIn — a famous hard BFS problem"
+     "LinkedIn"
     ],
+    "companyNote": "A famous hard BFS problem",
     "text": "Primary/Secondary Pattern: BFS over an implicit graph where edges connect words differing by one letter. Key concept: treat each word as a graph node; BFS finds the shortest transformation sequence since BFS naturally finds shortest paths in unweighted graphs. Why it matters: as a flagship \"recognize the implicit graph\" hard problem — the graph is never given explicitly, which is the real challenge. Prereq: #115, #73 (BFS level-by-level). Approach: BFS from beginWord , at each step try changing every letter position to every other letter, checking membership in the word set; level count = transformation length. Insight: precomputing wildcard patterns ( h*t for \"hot\") in a map lets you find neighbors in O(word length) instead of O(dictionary size), critical for passing time limits. Mistake: naive O(dictionary size) neighbor lookup per word, causing TLE on large dictionaries. Companies: Amazon, Meta, LinkedIn — a famous hard BFS problem."
    },
    "topic": "Graphs",
@@ -3306,8 +3327,9 @@
     "companies": [
      "Google",
      "Meta",
-     "Airbnb — a well-known hard graph-construction problem"
+     "Airbnb"
     ],
+    "companyNote": "A well-known hard graph-construction problem",
     "text": "Primary/Secondary Pattern: Build a graph of letter-precedence constraints from adjacent word comparisons, then topological sort. Key concept: compare adjacent words in the sorted list to infer a comes before b edges; topologically sort the resulting letter graph. Why it matters: as a hard problem combining graph construction (a non-trivial step) with topological sort (#120/#121). Prereq: #120, #121. Approach: for each adjacent word pair, find the first differing character and add a directed edge; run topological sort (Kahn's or DFS); detect invalid cases (cycle, or a word being a prefix of an earlier word which is invalid ordering). Insight: constructing the graph correctly (only from the first differing character between adjacent words, and validating the prefix-invalid case) is the trickiest part, not the topological sort itself. Mistake: comparing all pairs of words instead of only adjacent ones, or missing the invalid-prefix edge case. Companies: Google, Meta, Airbnb — a well-known hard graph-construction problem."
    },
    "topic": "Graphs",
@@ -3468,8 +3490,9 @@
     "companies": [
      "Amazon",
      "Meta",
-     "Uber — one of the most-asked DP mediums"
+     "Uber"
     ],
+    "companyNote": "One of the most-asked DP mediums",
     "text": "Primary/Secondary Pattern: Unbounded knapsack — dp[amount] = min(dp[amount-coin]+1) over all coins. Why it matters: as the definitive unbounded-knapsack template (coins reusable), contrasted with 0/1 knapsack. Prereq: #134. Approach: bottom-up array sized amount+1 , initialize to infinity except dp[0]=0 , iterate amounts and coins. Insight: looping coins inside the amount loop (or vice versa) doesn't matter for the minimum variant, but does matter for the counting variant (#139) — a subtlety worth explicitly understanding. Mistake: not initializing unreachable amounts to infinity, causing incorrect min comparisons. Companies: Amazon, Meta, Uber — one of the most-asked DP mediums."
    },
    "topic": "Dynamic Programming",
@@ -3533,8 +3556,9 @@
     "companies": [
      "Amazon",
      "Meta",
-     "Google — extremely common"
+     "Google"
     ],
+    "companyNote": "Extremely common",
     "text": "Primary/Secondary Pattern: dp[i] = true if any j<i has dp[j]==true and s[j:i] in wordDict . Why it matters: as the template for \"can the string be segmented\" DP, and a bridge from Recursion/Backtracking (#84) into DP via memoization. Prereq: #84 conceptually, #134. Approach: bottom-up boolean array, dp[0]=true , check every valid split point. Insight: a naive recursive-backtracking solution without memoization is exponential; adding a memo table (top- down) or converting to bottom-up DP is what makes it polynomial. Mistake: forgetting memoization in a recursive attempt, causing TLE. Companies: Amazon, Meta, Google — extremely common."
    },
    "topic": "Dynamic Programming",
@@ -3557,8 +3581,9 @@
     "companies": [
      "Google",
      "Microsoft",
-     "Meta — a top hard-ish medium"
+     "Meta"
     ],
+    "companyNote": "A top hard-ish medium",
     "text": "Primary/Secondary Pattern: O(n2) DP ( dp[i]=1+max(dp[j]) for j<i, nums[j]<nums[i] ), or O(n log n) via patience sorting with binary search. Why it matters: as one of the most important DP problems, testing whether you know the classic O(n log n) optimization beyond brute DP. Prereq: #134, #35 (binary search) for the optimized version. Approach (O(n2)): straightforward DP. Approach (O(n log n)): maintain a \"tails\" array of smallest tail for each subsequence length, binary search for the insertion point on each new number. Insight: the tails array itself isn't a valid LIS, but its length always equals the LIS length — a subtle but crucial realization. Mistake: believing the tails array must literally be the LIS. Variation: Number of LIS, Russian Doll Envelopes (2D LIS), Longest Chain of Pairs. Companies: Google, Microsoft, Meta — a top hard-ish medium."
    },
    "topic": "Dynamic Programming",
@@ -3693,8 +3718,9 @@
      "Amazon",
      "Meta",
      "Google",
-     "Microsoft — a cornerstone question"
+     "Microsoft"
     ],
+    "companyNote": "A cornerstone question",
     "text": "Primary/Secondary Pattern: dp[i][j] = dp[i-1][j- 1]+1 if chars match else max(dp[i-1][j], dp[i][j-1]) . Why it matters: as THE foundational 2-string DP template, underlying Edit Distance, Longest Common Substring, Shortest Common Supersequence, and more. Prereq: #146 (2D DP grid mental model). Approach: 2D table indexed by prefixes of both strings. Insight: the \"match → diagonal+1, else → best of left/up\" recurrence shape is the master template for the entire two-string DP family. Mistake: confusing \"subsequence\" (non- contiguous, order preserved) with \"substring\" (contiguous) — a completely different, simpler DP. Companies: Amazon, Meta, Google, Microsoft — a cornerstone question."
    },
    "topic": "Dynamic Programming",
@@ -3718,8 +3744,9 @@
      "Google",
      "Meta",
      "Amazon",
-     "Microsoft — an extremely famous hard problem"
+     "Microsoft"
     ],
+    "companyNote": "An extremely famous hard problem",
     "text": "Primary/Secondary Pattern: dp[i][j] = dp[i-1][j-1] if match, else 1+min(insert, delete, replace) . Why it matters: as the direct generalization of #148 to three operations, one of the most iconic hard DP problems industry-wide. Prereq: #148. Approach: 2D table; dp[i] [j] = min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1] + (0 if match else 1)) . Insight: each of the three DP neighbors corresponds exactly to one edit operation (delete, insert, replace) — visualizing this correspondence is what makes the recurrence memorable rather than memorized by rote. Mistake: mixing up which neighbor corresponds to insert vs delete (harmless for the final answer since it's symmetric under relabeling, but important to explain correctly). Companies: Google, Meta, Amazon, Microsoft — an extremely famous hard problem."
    },
    "topic": "Dynamic Programming",
@@ -3742,8 +3769,9 @@
     "companies": [
      "Amazon",
      "Meta",
-     "Microsoft — one of the most-asked string problems overall"
+     "Microsoft"
     ],
+    "companyNote": "One of the most-asked string problems overall",
     "text": "Primary/Secondary Pattern: DP ( dp[i][j] = dp[i+1] [j-1] and s[i]==s[j] ), or the more efficient \"expand around center\" O(n2)/O(1)-space technique. Why it matters: as the classic contiguous-palindrome problem, contrasted with #148's subsequence DP. Prereq: understanding palindromes. Approach (expand around center): for every index (and every gap between indices, for even-length palindromes), expand outward while characters match. Insight: \"expand around center\" achieves the same O(n2) time as full DP but with O(1) space instead of O(n2) — usually the preferred interview answer. Mistake: forgetting to check both odd- length (single center) and even-length (center between two indices) cases. Companies: Amazon, Meta, Microsoft — one of the most-asked string problems overall."
    },
    "topic": "Dynamic Programming",
@@ -3928,8 +3956,9 @@
     "companies": [
      "Google",
      "Meta",
-     "Uber — a top-tier hard problem"
+     "Uber"
     ],
+    "companyNote": "A top-tier hard problem",
     "text": "Primary/Secondary Pattern: 2D DP over pattern and text, with special handling for . and * . Key concept: * means \"zero or more of the preceding element,\" requiring a DP transition that considers both \"use the * to match nothing\" and \"use it to match one more occurrence.\" Matters as one of the hardest string DP problems, frequently used to separate strong candidates. Prereq: #148, #149. Approach: dp[i][j] = does s[0:i] match p[0:j] ; special- case p[j-1]=='*' to consider dp[i][j-2] (zero occurrences) or dp[i-1][j] (one more occurrence, if current chars match). Insight: * always pairs with the character before it in the pattern — handling this pairing correctly (not treating * in isolation) is the crux. Mistake: mishandling the \"zero occurrences\" branch of * , a very common source of bugs. Companies: Google, Meta, Uber — a top-tier hard problem."
    },
    "topic": "Dynamic Programming",
@@ -4228,8 +4257,9 @@
      "Amazon",
      "Meta",
      "Google",
-     "Microsoft — extremely frequently asked"
+     "Microsoft"
     ],
+    "companyNote": "Extremely frequently asked",
     "text": "Primary/Secondary Pattern: Sort by start, merge whenever the current interval's start ≤ the last merged interval's end. Why it matters: as the foundational interval-merging template underlying most of this topic. Prereq: sorting. Approach: sort, iterate, extend the last merged interval's end if overlapping, else start a new one. Insight: sorting by start is what guarantees you only ever need to compare against the most recently merged interval, never look further back. Mistake: forgetting to sort first, or comparing against the wrong \"last\" interval. Companies: Amazon, Meta, Google, Microsoft — extremely frequently asked."
    },
    "topic": "Intervals",
@@ -4292,8 +4322,9 @@
     "mistake": "checking all pairs instead of just adjacent ones after sorting.",
     "companies": [
      "Meta",
-     "Google (often as a warm-up before #175)"
+     "Google"
     ],
+    "companyNote": "Often as a warm-up before #175",
     "text": "Primary/Secondary Pattern: Sort by start, check any adjacent pair overlaps. Why it matters: as the simplest possible \"can one person attend all meetings\" check, a prerequisite mental model for #175. Prereq: sorting. Approach: sort by start time, check intervals[i].start < intervals[i-1].end for any i. Insight: sorting collapses an O(n2) pairwise overlap check into a single O(n) adjacent-pair scan. Mistake: checking all pairs instead of just adjacent ones after sorting. Companies: Meta, Google (often as a warm-up before #175)."
    },
    "topic": "Intervals",
@@ -4317,9 +4348,9 @@
     "companies": [
      "Amazon",
      "Meta",
-     "Google",
-     "Facebook — a top scheduling question"
+     "Google"
     ],
+    "companyNote": "A top scheduling question",
     "text": "Primary/Secondary Pattern: Two-pointer sweep on separately sorted start and end times, or a min-heap of end times. Key concept: track how many meetings are simultaneously in progress — the maximum concurrent count is the answer. Why it matters: as one of the most iconic scheduling problems in interviews, testable via two clean approaches (sweep line, or heap). Prereq: #174. Approach (sweep line): sort starts and ends separately; two pointers — if next start < next end, a new room is needed (increment counter), else a room frees up (decrement); track the max. Approach (heap): min-heap of end times; if the earliest-ending meeting ends before the current one starts, reuse that room (pop+push), else push a new room. Insight: separating starts and ends into their own sorted arrays for the sweep-line approach is what makes O(n log n) two-pointer counting possible without an explicit heap. Mistake: only tracking total rooms ever used instead of the maximum concurrent usage. Companies: Amazon, Meta, Google, Facebook — a top scheduling question."
    },
    "topic": "Intervals",
@@ -4698,7 +4729,7 @@
     "mistake": "treating it as standard base-26 with a 0-25 digit range, causing subtly wrong answers on multi- letter columns.",
     "companies": [
      "Google",
-     "Facebook"
+     "Meta"
     ],
     "text": "Primary/Secondary Pattern: Base-26 conversion, but with a twist — it's a \"bijective base-26\" system with no true zero digit. Why it matters: as a numeral-system-conversion exercise with a subtle off-by-one twist compared to standard base conversion. Prereq: none. Approach: result = result*26 + (char - 'A' + 1) for each character. Insight: unlike standard base-26 (digits 0-25), Excel columns use digits 1-26 with no zero — this is why the formula uses +1 and doesn't need special-casing despite initially looking like standard base conversion. Mistake: treating it as standard base-26 with a 0-25 digit range, causing subtly wrong answers on multi- letter columns. Companies: Google, Facebook."
    },
@@ -4747,8 +4778,9 @@
     "companies": [
      "Google",
      "Amazon",
-     "Meta — a mandatory building block"
+     "Meta"
     ],
+    "companyNote": "A mandatory building block",
     "text": "Primary/Secondary Pattern: Build the core trie data structure from scratch. Key concept: each node holds a map/array of children keyed by character, plus an isEndOfWord flag. Why it matters: as the mandatory foundational trie implementation every other trie problem builds on. Prereq: tree/recursion basics. Approach: insert walks/creates nodes per character, marking the last as end-of-word; search walks and checks the end flag; startsWith walks without checking the flag. Insight: using a fixed-size array of 26 children (for lowercase-only inputs) is faster than a hash map, an important optimization to mention. Mistake: forgetting the isEndOfWord flag, causing search(\"app\") to incorrectly return true when only \"apple\" was inserted. Companies: Google, Amazon, Meta — a mandatory building block."
    },
    "topic": "Tries",
@@ -4795,8 +4827,9 @@
     "companies": [
      "Amazon",
      "Google",
-     "Meta — a favorite hard-tier combination question"
+     "Meta"
     ],
+    "companyNote": "A favorite hard-tier combination question",
     "text": "Primary/Secondary Pattern: Trie of all target words + grid backtracking (#83), pruning branches that don't match any trie path. Key concept: instead of running #83's Word Search once per word (slow for many words), build one trie of all words and do a single combined DFS over the grid, following trie edges. Why it matters: as one of the best \"combine two known techniques for a multiplicative speedup\" hard problems — trie pruning turns an otherwise infeasible multi-word search into a tractable one. Prereq: #194, #83. Approach: build a trie from the word list; DFS from every grid cell, walking both the grid and the trie simultaneously, marking found words and removing them from the trie to avoid duplicate detection. Insight: pruning the trie by removing leaf nodes after a word is found (or once a path yields no viable children) meaningfully speeds up long searches over large word lists. Mistake: running backtracking per word independently (correct but far too slow with many words — O(words × grid backtracking) instead of O(grid backtracking) once). Companies: Amazon, Google, Meta — a favorite hard-tier combination question."
    },
    "topic": "Tries",
@@ -4912,8 +4945,9 @@
     "companies": [
      "Google",
      "Meta",
-     "Microsoft — a legendarily tricky hard problem"
+     "Microsoft"
     ],
+    "companyNote": "A legendarily tricky hard problem",
     "text": "Primary/Secondary Pattern: Sweep-line + a max-heap (or a balanced multiset/ordered structure) tracking currently active building heights. Key concept: process building edges (start=add height, end=remove height) in sorted x-order, tracking the current max height at each event, outputting a new skyline point whenever the max height changes. Why it matters: as an iconic hard problem combining sweep-line thinking with a heap or ordered-structure for tracking \"currently active maximum.\" Prereq: #175 (sweep-line from Meeting Rooms II), heap fluency. Approach: create (x, height, isStart) events, sort them (careful tie-breaking for simultaneous starts/ends), sweep through maintaining a max-heap (with lazy deletion for expired buildings) or a multiset of active heights. Insight: correctly breaking ties among simultaneous events (process all starts at an x before ends, and taller starts before shorter ones) is the trickiest correctness detail. Mistake: incorrect event ordering/tie-breaking, producing skylines with spurious extra points. Companies: Google, Meta, Microsoft — a legendarily tricky hard problem."
    },
    "topic": "Advanced Data Structures",

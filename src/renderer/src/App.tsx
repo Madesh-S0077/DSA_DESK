@@ -11,6 +11,8 @@ import { Sheet } from './pages/Sheet'
 import { Revision } from './pages/Revision'
 import { Mistakes } from './pages/Mistakes'
 import { Stats } from './pages/Stats'
+import { Contests } from './pages/Contests'
+import { Companies } from './pages/Companies'
 import { Settings } from './pages/Settings'
 import { useApp } from './lib/store'
 
@@ -29,6 +31,8 @@ function Shell(): ReactNode {
             <Route path="/today" element={<Today />} />
             <Route path="/sheet" element={<Sheet />} />
             <Route path="/revision" element={<Revision />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/contests" element={<Contests />} />
             <Route path="/mistakes" element={<Mistakes />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/settings" element={<Settings />} />

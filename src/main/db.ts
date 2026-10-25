@@ -65,8 +65,16 @@ export const DEFAULT_SETTINGS: Settings = {
   reminders: true,
   reminderTime: '20:00',
   launchAtStartup: false,
-  theme: 'system'
+  theme: 'system',
+  targetCompanies: [],
+  contestPlatforms: ['leetcode', 'codeforces', 'atcoder', 'gfg'],
+  contestReminders: true,
+  contestLeadMin: 30,
+  aiModel: 'gemini-3.6-flash'
 }
+
+/** Settings-table rows that hold secrets rather than `Settings` fields. */
+const SECRET_PREFIX = 'secret:'
 
 export interface SyncState {
   platform: Platform
@@ -99,7 +107,7 @@ export class Store {
 
   // ---------------------------------------------------------------- settings
   getSettings(): Settings {
-    const rows = this.db.prepare('select key, value from settings').all() as { key: string; value: string }[]
+    const rows = this.db.prepare(`select key, value from settings where key not like '${SECRET_PREFIX}%'`).all() as { key: string; value: string }[]
     const stored = Object.fromEntries(rows.map((r) => [r.key, JSON.parse(r.value)]))
     const s = { ...DEFAULT_SETTINGS, ...stored } as Settings
     s.usernames = { ...DEFAULT_SETTINGS.usernames, ...(stored.usernames ?? {}) }
@@ -113,6 +121,17 @@ export class Store {
       for (const [k, v] of Object.entries(patch)) put.run(k, JSON.stringify(v))
     })()
     return this.getSettings()
+  }
+
+  /** Raw (already encrypted) secret, or null. */
+  getSecret(name: string): string | null {
+    const r = this.db.prepare('select value from settings where key = ?').get(SECRET_PREFIX + name) as { value: string } | undefined
+    return r ? r.value : null
+  }
+
+  setSecret(name: string, value: string | null): void {
+    if (value === null) this.db.prepare('delete from settings where key = ?').run(SECRET_PREFIX + name)
+    else this.db.prepare('insert into settings (key, value) values (?, ?) on conflict(key) do update set value = excluded.value').run(SECRET_PREFIX + name, value)
   }
 
   // ---------------------------------------------------------------- problems & solves

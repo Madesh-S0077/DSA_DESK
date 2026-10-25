@@ -1,7 +1,7 @@
 // GeeksforGeeks has no official API. These are the endpoints its own website calls; they may change.
 import { getJson } from './http'
 import { topicForTags } from './topics'
-import type { ExternalPick } from '@shared/types'
+import type { Contest, ExternalPick } from '@shared/types'
 
 export async function fetchPotd(): Promise<ExternalPick> {
   const p = await getJson<{
@@ -57,4 +57,29 @@ export async function fetchSolved(handle: string): Promise<GfgSolved[]> {
     }
   }
   return out
+}
+
+interface GfgEvent {
+  slug: string
+  name: string
+  start_time: string
+  end_time: string
+}
+
+/** GFG event times are India local time without an offset. */
+const ist = (t: string): number => Date.parse(`${t}+05:30`)
+
+export function parseEvents(r: { results?: { upcoming?: GfgEvent[] } }): Contest[] {
+  return (r.results?.upcoming ?? []).map((e) => ({
+    id: `gfg:${e.slug}`,
+    platform: 'gfg',
+    name: e.name,
+    url: `https://www.geeksforgeeks.org/contest/${e.slug}`,
+    start: ist(e.start_time),
+    durationMin: Math.round((ist(e.end_time) - ist(e.start_time)) / 60_000)
+  }))
+}
+
+export async function fetchContests(): Promise<Contest[]> {
+  return parseEvents(await getJson('https://practiceapi.geeksforgeeks.org/api/vr/events/?page_number=1&sub_type=all&type=contest'))
 }

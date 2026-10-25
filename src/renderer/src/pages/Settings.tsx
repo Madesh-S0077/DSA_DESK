@@ -2,7 +2,7 @@ import { CheckCircle2, RefreshCw, TriangleAlert } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import type { Platform, Settings as SettingsT, SyncResult, TrackId } from '@shared/types'
 import { PLATFORMS, PLATFORM_LABEL } from '@shared/types'
-import { Button, Card, CardTitle, Field, PageHeader, Segmented, cx, inputClass } from '../components/ui'
+import { Button, Card, CardTitle, Field, PageHeader, Segmented, Toggle, cx, inputClass } from '../components/ui'
 import { useApp, useData } from '../lib/store'
 import { timeAgo } from '../lib/problem'
 
@@ -152,6 +152,8 @@ export function Settings(): ReactNode {
         </div>
       </Card>
 
+      <AiSettings model={draft.aiModel} onModel={(aiModel) => void commit({ aiModel })} />
+
       <Card>
         <CardTitle>Reminders</CardTitle>
         <div className="grid grid-cols-2 gap-5">
@@ -166,23 +168,59 @@ export function Settings(): ReactNode {
   )
 }
 
-function trimAll(u: Record<Platform, string>): Record<Platform, string> {
-  return Object.fromEntries(Object.entries(u).map(([k, v]) => [k, v.trim()])) as Record<Platform, string>
+const DEFAULT_AI_MODEL = 'gemini-3.6-flash'
+
+function AiSettings({ model, onModel }: { model: string; onModel: (m: string) => void }): ReactNode {
+  const [hasKey, setHasKey] = useState<boolean | null>(null)
+  const [key, setKey] = useState('')
+  const [modelDraft, setModelDraft] = useState(model)
+
+  useEffect(() => void window.api.hasAiKey().then(setHasKey), [])
+  useEffect(() => setModelDraft(model), [model])
+
+  const saveKey = async (k: string): Promise<void> => {
+    await window.api.setAiKey(k)
+    setKey('')
+    setHasKey(!!k.trim())
+  }
+
+  return (
+    <Card className="mb-5">
+      <CardTitle>AI help</CardTitle>
+      <p className="mb-4 text-[13px] leading-relaxed text-muted">
+        Focus mode can explain a problem, give a small hint or walk through the approach (never code) using Google Gemini. Get a free key at{' '}
+        <button className="cursor-pointer text-sage-deep underline" onClick={() => void window.api.openExternal('https://aistudio.google.com/apikey')}>
+          aistudio.google.com/apikey
+        </button>
+        . The key is stored encrypted on this computer. On the free tier, Google may use prompts to improve its models.
+      </p>
+      <div className="grid grid-cols-2 gap-5">
+        <Field label="Gemini API key" hint={hasKey ? <span className="text-sage-deep">Key saved ✓</span> : 'Not set'}>
+          <div className="flex gap-2">
+            <input
+              className={inputClass} type="password" placeholder={hasKey ? '••••••••  (paste to replace)' : 'Paste your key'} value={key}
+              onChange={(e) => setKey(e.target.value)}
+            />
+            <Button variant="primary" disabled={!key.trim()} onClick={() => void saveKey(key)}>Save</Button>
+            {hasKey && <Button variant="ghost" onClick={() => void saveKey('')}>Remove</Button>}
+          </div>
+        </Field>
+        <Field label="Model" hint="Change this if Gemini says the model doesn't exist or you hit free-tier limits.">
+          <input
+            className={inputClass} value={modelDraft} placeholder={DEFAULT_AI_MODEL}
+            onChange={(e) => setModelDraft(e.target.value)}
+            onBlur={() => {
+              const m = modelDraft.trim() || DEFAULT_AI_MODEL
+              setModelDraft(m)
+              if (m !== model) onModel(m)
+            }}
+          />
+        </Field>
+      </div>
+    </Card>
+  )
 }
 
-function Toggle({ label, hint, checked, onChange }: { label: string; hint: string; checked: boolean; onChange: (v: boolean) => void }): ReactNode {
-  return (
-    <div className="flex items-start gap-3">
-      <button
-        type="button" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)}
-        className={cx('relative mt-0.5 h-6 w-11 shrink-0 cursor-pointer rounded-full transition', checked ? 'bg-sage' : 'bg-line')}
-      >
-        <span className={cx('absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all', checked ? 'left-[22px]' : 'left-0.5')} />
-      </button>
-      <div>
-        <div className="text-[14px] font-medium">{label}</div>
-        <div className="mt-0.5 text-[12px] text-muted">{hint}</div>
-      </div>
-    </div>
-  )
+function trimAll(u: Record<Platform, string>): Record<Platform, string> {
+  return Object.fromEntries(Object.entries(u).map(([k, v]) => [k, v.trim()])) as Record<Platform, string>
 }

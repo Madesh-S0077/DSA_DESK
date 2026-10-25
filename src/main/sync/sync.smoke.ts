@@ -65,3 +65,13 @@ describe('GeeksforGeeks', () => {
     expect(Array.isArray(s)).toBe(true)
   })
 })
+
+describe('Contests', () => {
+  for (const [name, fetch] of [['LeetCode', lc.fetchContests], ['Codeforces', cf.fetchContests], ['AtCoder', ac.fetchContests], ['GeeksforGeeks', gfg.fetchContests]] as const) {
+    it(`${name} upcoming`, async () => {
+      const cs = await fetch()
+      console.log(`${name} contests: ${cs.length}`, cs.slice(0, 2).map((c) => `${c.name} @ ${new Date(c.start).toISOString()} (${c.durationMin}m)`))
+      expect(cs.every((c) => c.start > 1.7e12 && c.durationMin > 0 && c.url.startsWith('https://'))).toBe(true)
+    })
+  }
+})

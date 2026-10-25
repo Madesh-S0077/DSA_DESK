@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, ExternalLink, Lightbulb, Pause, Play, RotateCcw, X } from 'lucide-react'
-import { useEffect, useState, type ReactNode } from 'react'
+import { BookOpen, Check, ExternalLink, Lightbulb, Pause, Play, RefreshCw, RotateCcw, Route, Sparkles, X } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
+import type { AiHelpKind, ProblemRef } from '@shared/types'
 import { Button, DifficultyPill, Segmented } from './ui'
 import { useApp } from '../lib/store'
 
@@ -110,8 +112,10 @@ export function FocusMode(): ReactNode {
             <Segmented value={preset} onChange={choosePreset} options={PRESETS.map((p) => ({ ...p, label: p.value ? p.label : `Timebox ${focus.minutes}` }))} />
           </div>
 
+          <AiHelp key={focus.startedAt} problem={focus.problem} onSettings={() => startFocus(null)} />
+
           {focus.hint && (
-            <div className="mt-10 w-full max-w-xl">
+            <div className="mt-4 w-full max-w-xl">
               {hint ? (
                 <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-line bg-card p-5 text-[14px] leading-relaxed whitespace-pre-line text-ink-soft shadow-soft">
                   {focus.hint}
@@ -126,5 +130,101 @@ export function FocusMode(): ReactNode {
         </motion.div>
       )}
     </AnimatePresence>
+  )
+}
+
+const AI_KINDS: { kind: AiHelpKind; label: string; icon: ReactNode }[] = [
+  { kind: 'explain', label: 'Explain problem', icon: <BookOpen size={15} /> },
+  { kind: 'hint', label: 'Small hint', icon: <Lightbulb size={15} /> },
+  { kind: 'approach', label: 'Approach', icon: <Route size={15} /> }
+]
+
+/** Gemini-backed tutor: explain the statement, a minimal hint, or the full approach (never code). */
+function AiHelp({ problem, onSettings }: { problem: ProblemRef; onSettings: () => void }): ReactNode {
+  const navigate = useNavigate()
+  const [hasKey, setHasKey] = useState<boolean | null>(null)
+  const [kind, setKind] = useState<AiHelpKind | null>(null)
+  const [confirming, setConfirming] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [answer, setAnswer] = useState('')
+  const [error, setError] = useState('')
+  // Only the latest request may update the card.
+  const request = useRef(0)
+
+  useEffect(() => void window.api.hasAiKey().then(setHasKey), [])
+
+  const ask = async (k: AiHelpKind, fresh = false): Promise<void> => {
+    const id = ++request.current
+    setKind(k)
+    setConfirming(false)
+    setLoading(true)
+    setAnswer('')
+    setError('')
+    try {
+      const text = await window.api.aiHelp(problem, k, fresh)
+      if (id === request.current) setAnswer(text)
+    } catch (e) {
+      if (id === request.current) setError(String((e as Error).message ?? e).replace(/^Error invoking remote method '[^']+': (Error: )?/, ''))
+    } finally {
+      if (id === request.current) setLoading(false)
+    }
+  }
+
+  if (hasKey === null) return null
+  if (!hasKey) {
+    return (
+      <button
+        onClick={() => (onSettings(), navigate('/settings'))}
+        className="mt-10 flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-[13px] text-muted hover:bg-bg-deep"
+      >
+        <Sparkles size={16} /> Add a free Gemini key in Settings to get AI help
+      </button>
+    )
+  }
+
+  return (
+    <div className="mt-10 w-full max-w-xl">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {AI_KINDS.map((a) => (
+          <Button
+            key={a.kind} size="sm" variant={kind === a.kind ? 'primary' : 'ghost'} disabled={loading}
+            onClick={() => (a.kind === 'approach' && kind !== 'approach' ? setConfirming(true) : void ask(a.kind))}
+          >
+            {a.icon} {a.label}
+          </Button>
+        ))}
+      </div>
+
+      {confirming && (
+        <div className="mt-3 flex items-center justify-center gap-2 text-[13px] text-muted">
+          This gives away the approach. Show it?
+          <Button size="sm" variant="soft" onClick={() => void ask('approach')}>Show</Button>
+          <Button size="sm" variant="ghost" onClick={() => setConfirming(false)}>Not yet</Button>
+        </div>
+      )}
+
+      {(loading || answer || error) && (
+        <motion.div
+          key={kind}
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          className="mt-4 max-h-[34vh] overflow-y-auto rounded-2xl border border-line bg-card p-5 text-[14px] leading-relaxed whitespace-pre-line text-ink-soft shadow-soft"
+        >
+          {loading ? (
+            <span className="flex items-center gap-2 text-muted"><Sparkles size={15} className="animate-pulse" /> thinking…</span>
+          ) : error ? (
+            <span className="text-peach-deep">{error}</span>
+          ) : (
+            <>
+              {answer}
+              <div className="mt-3 flex justify-end">
+                <Button size="sm" variant="ghost" onClick={() => kind && void ask(kind, true)}>
+                  <RefreshCw size={14} /> Ask again
+                </Button>
+              </div>
+            </>
+          )}
+        </motion.div>
+      )}
+    </div>
   )
 }

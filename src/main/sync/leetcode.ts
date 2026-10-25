@@ -1,6 +1,6 @@
 import { getJson } from './http'
 import { topicForTags } from './topics'
-import type { ExternalPick } from '@shared/types'
+import type { Contest, ExternalPick } from '@shared/types'
 
 const ENDPOINT = 'https://leetcode.com/graphql'
 
@@ -124,4 +124,44 @@ export async function fetchQuestionMeta(slug: string): Promise<{ difficulty: str
     { titleSlug: slug }
   )
   return d.question ? { difficulty: d.question.difficulty, tags: d.question.topicTags.map((t) => t.slug) } : null
+}
+
+/** The problem statement as plain text, or null if LeetCode doesn't share it (e.g. premium). */
+export async function fetchQuestionContent(slug: string): Promise<string | null> {
+  const d = await gql<{ question: { content: string | null } | null }>(
+    `query q($titleSlug: String!) { question(titleSlug: $titleSlug) { content } }`,
+    { titleSlug: slug }
+  )
+  const html = d.question?.content
+  return html ? htmlToText(html) : null
+}
+
+export function htmlToText(html: string): string {
+  return html
+    .replace(/<sup>(.*?)<\/sup>/g, '^$1')
+    .replace(/<(br|\/p|\/li|\/pre|\/div)\s*\/?>/gi, '\n')
+    .replace(/<li>/gi, '- ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
+export async function fetchContests(): Promise<Contest[]> {
+  const d = await gql<{ upcomingContests: { title: string; titleSlug: string; startTime: number; duration: number }[] }>(
+    `query { upcomingContests { title titleSlug startTime duration } }`
+  )
+  return d.upcomingContests.map((c) => ({
+    id: `lc:${c.titleSlug}`,
+    platform: 'leetcode',
+    name: c.title,
+    url: `https://leetcode.com/contest/${c.titleSlug}`,
+    start: c.startTime * 1000,
+    durationMin: Math.round(c.duration / 60)
+  }))
 }

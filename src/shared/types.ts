@@ -35,6 +35,10 @@ export interface ProblemDetails {
   mistake?: string
   variation?: string
   companies?: string[]
+  /** Asked across the board rather than at named companies; counts toward every company. */
+  everywhere?: boolean
+  /** The guide's remark on how often it comes up, e.g. "Extremely frequently asked". */
+  companyNote?: string
   seeAlso?: number
   text?: string
 }
@@ -95,6 +99,15 @@ export interface Settings {
   reminderTime: string
   launchAtStartup: boolean
   theme: 'system' | 'light' | 'dark'
+  /** Companies you are preparing for; their problems get a recommender bonus. */
+  targetCompanies: string[]
+  /** Platforms whose contests show up and trigger reminders. */
+  contestPlatforms: Platform[]
+  contestReminders: boolean
+  /** Minutes before a contest starts to send the reminder. */
+  contestLeadMin: number
+  /** Gemini model used for AI help, e.g. `gemini-3.6-flash`. */
+  aiModel: string
 }
 
 /** Platform-qualified id: `lc:two-sum`, `cf:1520A`, `ac:abc300_a`, `gfg:<slug>`. */
@@ -235,3 +248,34 @@ export interface SyncResult {
   added: number
   message: string
 }
+
+export interface Contest {
+  /** Platform-qualified id: `cf:2278`, `lc:weekly-contest-525`, `ac:abc481`, `gfg:<slug>`. */
+  id: string
+  platform: Platform
+  name: string
+  url: string
+  /** Unix ms */
+  start: number
+  durationMin: number
+}
+
+export interface ContestsData {
+  contests: Contest[]
+  fetchedAt: number | null
+  errors: Partial<Record<Platform, string>>
+}
+
+export interface CompanyStat {
+  company: string
+  total: number
+  solved: number
+  byDifficulty: { difficulty: Difficulty; solved: number; total: number }[]
+  /** Unsolved ★5 problems for this company. */
+  mustDoLeft: number
+  /** The next few unsolved problems, easiest-first within the guide's order. */
+  next: GuideProblem[]
+}
+
+/** What the AI tutor is asked for in focus mode. */
+export type AiHelpKind = 'explain' | 'hint' | 'approach'
